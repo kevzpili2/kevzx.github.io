@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignisense: Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            background-color: #0a0a0a;
+            background-image:
+                radial-gradient(at 27% 37%, hsla(215, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 97% 21%, hsla(125, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 82% 99%, hsla(340, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 17% 81%, hsla(283, 98%, 42%, 0.1) 0px, transparent 50%);
+        }
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 20px; border: 3px solid #1e293b; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #fb923c; } 
+        
+        .map-container {
+            height: 500px;
+            border-radius: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-fire-marker {
+            color: #f59e0b;
+            animation: pulse-user 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse-user {
+            0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 4px #d97706); }
+            50% { transform: scale(1.3); opacity: 0.7; filter: drop-shadow(0 0 12px #d97706); }
+        }
+        .system-fire-marker {
+            color: #ef4444; 
+            animation: pulse-system 1s infinite;
+        }
+        @keyframes pulse-system {
+            0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 5px #dc2626); }
+            50% { transform: scale(1.4); opacity: 0.8; filter: drop-shadow(0 0 18px #dc2626); }
+        }
+
+        #loading-overlay { z-index: 9999; }
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border: 5px solid #475569;
+            border-bottom-color: #fb923c;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #admin-content { display: none; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <canvas id="admin-canvas" class="fixed top-0 left-0 w-full h-full z-[-1]"></canvas>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-300 z-[9999]">
+        <div class="spinner"></div>
+        <p id="loading-text" class="text-white text-lg mt-4">Verifying credentials...</p>
+    </div>
+
+    <div id="admin-content">
+        <header class="bg-slate-900 shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4">
+                <nav class="flex items-center justify-between">
+                    <a href="#" class="text-2xl font-bold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-400"><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0Z"/><path d="M12 12.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 1 0 7 0Z"/><path d="M19 12.5c0 .09 0 .18-.01.27"/><path d="M5 12.5c0 .09 0 .18.01.27"/><path d="M12.5 19c.09 0 .18 0 .27-.01"/><path d="M12.5 5c.09 0 .18 0 .27.01"/></svg>
+                        <span>Ignisense Admin</span>
+                    </a>
+                    <div>
+                        <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-all transform hover:scale-105 duration-300 inline-flex items-center gap-2">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-6 py-12">
+            <h1 class: "text-3xl md:text-4xl font-bold text-white mb-8">Admin Dashboard</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg flex items-center gap-4">
+                    <div class="bg-blue-500/10 p-3 rounded-full">
+                        <i data-lucide="alert-circle" class="w-8 h-8 text-blue-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400">Total Reports</p>
+                        <p id="stat-total-reports" class="text-3xl font-bold text-white">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg flex items-center gap-4">
+                    <div class="bg-amber-500/10 p-3 rounded-full">
+                        <i data-lucide="triangle-alert" class="w-8 h-8 text-amber-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400">User Reports</p>
+                        <p id="stat-user-reports" class="text-3xl font-bold text-white">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg flex items-center gap-4">
+                    <div class="bg-red-500/10 p-3 rounded-full">
+                        <i data-lucide="flame" class="w-8 h-8 text-red-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400">System Detections</p>
+                        <p id="stat-system-reports" class="text-3xl font-bold text-white">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-white mb-4">Live Report Map</h2>
+                        <div id="admin-map" class="map-container"></div>
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mt-4">
+                            <div class="flex items-center gap-2 text-slate-300"><i data-lucide="flame" class="w-6 h-6 text-red-500"></i> System Detected Fire</div>
+                            <div class="flex items-center gap-2 text-slate-300"><i data-lucide="triangle-alert" class="w-6 h-6 text-amber-500"></i> User Reported Fire</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-white mb-4">Admin Actions</h2>
+                        <button id="simulate-fire-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 inline-flex items-center gap-2">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                            <span>Simulate System Fire (Tanauan Institute)</span>
+                        </button>
+                        <p class="text-slate-400 text-sm mt-2">This will add a 'System Detected' fire pin near the institute for testing.</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <h2 class="text-2xl font-semibold text-white mb-4">Active Reports</h2>
+                    <div id="report-list-container" class="bg-slate-900/50 border border-slate-700 rounded-lg max-h-[700px] overflow-y-auto">
+                        <div id="report-list" class="divide-y divide-slate-700">
+                            <p id="no-reports-msg" class="p-6 text-slate-400 text-center">No active reports found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        let adminUserId = null;
+        let localReports = JSON.parse(localStorage.getItem('ignisense_reports') || '[]');
+        
+        const fireMarkers = {};
+        let adminMap;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const adminContent = document.getElementById('admin-content');
+        const logoutButton = document.getElementById('logout-button');
+        const reportList = document.getElementById('report-list');
+        const noReportsMsg = document.getElementById('no-reports-msg');
+        const simulateFireBtn = document.getElementById('simulate-fire-btn');
+        const adminMapContainer = document.getElementById('admin-map');
+        
+        const statTotalReports = document.getElementById('stat-total-reports');
+        const statUserReports = document.getElementById('stat-user-reports');
+        const statSystemReports = document.getElementById('stat-system-reports');
+        
+        const userFireIcon = L.divIcon({ html: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="user-fire-marker"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`, className: '', iconSize: [40, 40], iconAnchor: [20, 40] });
+        const systemFireIcon = L.divIcon({ html: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="system-fire-marker"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`, className: '', iconSize: [40, 40], iconAnchor: [20, 40] });
+
+        const locationCache = new Map();
+        async function getLocationName(lat, lng) {
+            const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+            if (locationCache.has(key)) return locationCache.get(key);
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                let locationName = "Unknown Location";
+                if (data && data.address) {
+                    const { road, village, city, town, municipality, state } = data.address;
+                    const barangay = village || data.address.suburb || '';
+                    const street = road || '';
+                    const cityName = city || town || municipality || state || '';
+                    locationName = [street, barangay, cityName].filter(Boolean).join(', ');
+                }
+                if (!locationName) locationName = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+                locationCache.set(key, locationName);
+                return locationName;
+            } catch (error) { 
+                console.error("Reverse geocoding error:", error); 
+                const fallback = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+                locationCache.set(key, fallback);
+                return fallback;
+            }
+        }
+
+        const heroCanvas = document.getElementById('admin-canvas');
+        let heroCtx;
+        let particles = [];
+        
+        const setCanvasSize = () => {
+            if (!heroCanvas) return;
+            heroCanvas.width = heroCanvas.offsetWidth;
+            heroCanvas.height = heroCanvas.offsetHeight;
+            heroCtx = heroCanvas.getContext('2d');
+        };
+
+        const createParticles = () => {
+            if (!heroCanvas) return;
+            particles = [];
+            const particleCount = Math.floor((heroCanvas.width * heroCanvas.height) / 10000); 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * heroCanvas.width,
+                    y: Math.random() * heroCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+        };
+
+        const animateParticles = () => {
+            if (!heroCtx) return;
+            heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > heroCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > heroCanvas.height) p.vy *= -1;
+
+                heroCtx.beginPath();
+                heroCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                heroCtx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`;
+                heroCtx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        };
+        
+        const initHeroCanvas = () => {
+            setCanvasSize();
+            createParticles();
+            animateParticles();
+            
+            window.addEventListener('resize', () => {
+                setCanvasSize();
+                createParticles();
+            });
+        };
+
+        function initializeApp() {
+            adminContent.style.display = 'block';
+
+            lucide.createIcons();
+            
+            initAdminMap();
+            setupListeners();
+            updateDashboard();
+            
+            initHeroCanvas();
+            
+            loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+        
+        const tanauanCenter = [14.0855, 121.1475];
+        const tanauanBounds = L.latLngBounds(L.latLng(14.04, 121.08), L.latLng(14.14, 121.20));
+        const tanauanInstituteCoords = [14.0885, 121.1495];
+        const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+        function initAdminMap() {
+            adminMap = L.map(adminMapContainer, { maxBounds: tanauanBounds, minZoom: 12 }).setView(tanauanCenter, 13);
+            L.tileLayer(tileUrl, { attribution: tileAttribution }).addTo(adminMap);
+            L.rectangle(tanauanBounds, { color: "#fb923c", weight: 2, fillOpacity: 0.05 }).addTo(adminMap);
+            
+            setTimeout(() => adminMap.invalidateSize(), 100);
+        }
+
+        async function addMarkerToAdminMap(report, reportId) {
+            const latlng = [report.lat, report.lng];
+            const icon = report.type === 'user' ? userFireIcon : systemFireIcon;
+            const title = report.type === 'user' ? "User Report" : "System Detection";
+            
+            if(fireMarkers[reportId]) {
+               adminMap.removeLayer(fireMarkers[reportId]);
+            }
+            
+            const marker = L.marker(latlng, { icon: icon }).addTo(adminMap);
+            const locationName = await getLocationName(latlng[0], latlng[1]);
+            marker.bindPopup(`<b>${title}</b><br>${locationName}<br><small>${reportId}</small>`);
+            fireMarkers[reportId] = marker;
+        }
+
+        function removeMarkerFromAdminMap(reportId) {
+            if(fireMarkers[reportId]) {
+                adminMap.removeLayer(fireMarkers[reportId]);
+                delete fireMarkers[reportId];
+            }
+        }
+
+        async function updateDashboard() {
+            console.log("Updating dashboard...");
+            const userReports = localReports.filter(r => r.type === 'user').length;
+            const systemReports = localReports.filter(r => r.type === 'system').length;
+            statTotalReports.textContent = localReports.length;
+            statUserReports.textContent = userReports;
+            statSystemReports.textContent = systemReports;
+
+            if (localReports.length === 0) {
+                noReportsMsg.classList.remove('hidden');
+                reportList.innerHTML = '';
+            } else {
+                noReportsMsg.classList.add('hidden');
+                reportList.innerHTML = '';
+
+                localReports.sort((a, b) => b.timestamp - a.timestamp);
+
+                for (const report of localReports) {
+                    const data = report;
+                    const id = report.id;
+                    const locationName = await getLocationName(data.lat, data.lng);
+                    const timestamp = new Date(data.timestamp).toLocaleString();
+                    const isUserReport = data.type === 'user';
+
+                    const reportElement = document.createElement('div');
+                    reportElement.className = 'p-4 hover:bg-slate-800/50 transition-colors';
+                    reportElement.innerHTML = `
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="font-semibold text-white flex items-center gap-2">
+                                    <i data-lucide="${isUserReport ? 'triangle-alert' : 'flame'}" class="w-5 h-5 ${isUserReport ? 'text-amber-500' : 'text-red-500'}"></i>
+                                    ${isUserReport ? 'User Report' : 'System Detection'}
+                                </h3>
+                                <p class="text-sm text-slate-300 mt-1">${locationName}</p>
+                                <p class="text-xs text-slate-500 mt-2">${timestamp}</p>
+                                <p class="text-xs text-slate-600 mt-1">ID: ${id}</p>
+                            </div>
+                            <button data-id="${id}" class="delete-report-btn flex-shrink-0 bg-red-600/20 text-red-400 hover:bg-red-600/40 hover:text-red-300 p-2 rounded-full transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    reportList.appendChild(reportElement);
+                }
+                
+                lucide.createIcons();
+                document.querySelectorAll('.delete-report-btn').forEach(button => {
+                    button.addEventListener('click', handleDeleteReport);
+                });
+            }
+
+            Object.keys(fireMarkers).forEach(markerId => {
+                if (!localReports.some(report => report.id === markerId)) {
+                    removeMarkerFromAdminMap(markerId);
+                }
+            });
+            for (const report of localReports) {
+                await addMarkerToAdminMap(report, report.id);
+            }
+        }
+        
+        async function handleDeleteReport(e) {
+            const id = e.currentTarget.dataset.id;
+            
+            if (confirm(`Are you sure you want to delete report ${id}?`)) {
+                try {
+                    localReports = localReports.filter(report => report.id !== id);
+                    localStorage.setItem('ignisense_reports', JSON.stringify(localReports));
+                    updateDashboard();
+                    console.log("Report deleted:", id);
+                } catch (error) {
+                    console.error("Error deleting report:", error);
+                    alert("Failed to delete report.");
+                }
+            }
+        }
+
+        async function handleSimulateFire() {
+            simulateFireBtn.disabled = true;
+            simulateFireBtn.querySelector('span').textContent = 'Simulating...';
+
+            try {
+                const id = `system-${Date.now()}`;
+                const newReport = {
+                    id: id,
+                    lat: tanauanInstituteCoords[0] + (Math.random() - 0.5) * 0.001,
+                    lng: tanauanInstituteCoords[1] + (Math.random() - 0.5) * 0.001,
+                    type: 'system',
+                    timestamp: Date.now(),
+                    reportedBy: adminUserId
+                };
+                
+                localReports.push(newReport);
+                localStorage.setItem('ignisense_reports', JSON.stringify(localReports));
+
+                updateDashboard();
+                
+                console.log("Simulated fire report added:", id);
+
+            } catch (error) {
+                console.error("Error simulating fire:", error);
+                alert("Failed to simulate fire.");
+            } finally {
+                simulateFireBtn.disabled = false;
+                simulateFireBtn.querySelector('span').textContent = 'Simulate System Fire (Tanauan Institute)';
+            }
+        }
+
+        function setupListeners() {
+            logoutButton.addEventListener('click', async () => {
+                localStorage.removeItem("ignisense_admin_override");
+                localStorage.removeItem("ignisense_user_override");
+                window.location.href = 'index.html';
+            });
+
+            simulateFireBtn.addEventListener('click', handleSimulateFire);
+
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'ignisense_reports') {
+                    console.log("Report data updated from user page. Reloading dashboard.");
+                    localReports = JSON.parse(event.newValue || '[]');
+                    updateDashboard();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem("ignisense_admin_override") === "true") {
+                console.warn("INSECURE ADMIN OVERRIDE ACTIVE.");
+                adminUserId = "hardcoded_admin";
+                initializeApp();
+            } else {
+                console.log("No admin override flag found. Redirecting to login.");
+                loadingText.textContent = "Access Denied. Redirecting...";
+                setTimeout(() => {
+                    window.location.href = 'index.HhTmLl';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
+
