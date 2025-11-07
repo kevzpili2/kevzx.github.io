@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignisense: Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            background-size: cover;
+            background-position: center;
+            color: #e2e8f0;
+        }
+        .hero-bg {
+            background-color: #0a0a0a;
+            background-image:
+                radial-gradient(at 27% 37%, hsla(215, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 97% 21%, hsla(125, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 82% 99%, hsla(340, 98%, 42%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 17% 81%, hsla(283, 98%, 42%, 0.1) 0px, transparent 50%);
+        }
+        .glass-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <!-- Full screen container -->
+    <div class="relative min-h-screen flex items-center justify-center hero-bg overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+        
+        <canvas id="login-canvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
+
+        <!-- The semi-transparent card -->
+        <div class="relative z-10 max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden glass-card">
+            <div class="flex flex-col md:flex-row">
+                
+                <!-- Left Side: Form -->
+                <div class="w-full md:w-1/2 p-10 md:p-12">
+                    <div>
+                        <h2 id="form-title" class="text-3xl font-bold tracking-tight text-white">
+                            Create your Account
+                        </h2>
+                        <p class="mt-2 text-slate-300">
+                            Get started by providing your details.
+                        </p>
+                    </div>
+                    
+                    <form id="signup-form" class="form-container mt-8 space-y-6" action="#" method="POST">
+                        <div class="rounded-md shadow-sm space-y-4">
+                            <div>
+                                <label for="signup-username" class="sr-only">Username</label>
+                                <input id="signup-username" name="username" type="text" autocomplete="username" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Username">
+                            </div>
+                            <div>
+                                <label for="signup-email" class="sr-only">Email</label>
+                                <input id="signup-email" name="email" type="email" autocomplete="email" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Email">
+                            </div>
+                            <div>
+                                <label for="signup-password" class="sr-only">Password</label>
+                                <input id="signup-password" name="password" type="password" autocomplete="new-password" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Password">
+                            </div>
+                             <div>
+                                <label for="signup-confirm-password" class="sr-only">Confirm Password</label>
+                                <input id="signup-confirm-password" name="confirm-password" type="password" autocomplete="new-password" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Confirm Password">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <a href="index.html" class="font-medium text-orange-400 hover:text-orange-300">
+                                Already have an account?
+                            </a>
+                        </div>
+
+                        <div>
+                            <button type="submit" id="signup-button"
+                                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-orange-500 transition-colors duration-300">
+                                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                    <i data-lucide="user-plus" class="h-5 w-5 text-orange-300 group-hover:text-orange-200"></i>
+                                </span>
+                                Create Account
+                            </button>
+                        </div>
+                        <div id="signup-error-message" class="text-center text-red-400 text-sm font-medium hidden"></div>
+                        <div id="signup-success-message" class="text-center text-green-400 text-sm font-medium hidden"></div>
+                    </form>
+                </div>
+
+                <!-- Right Side: Logo/Brand -->
+                <div class="w-full md:w-1/2 p-10 md:p-12 flex items-center justify-center bg-black/20">
+                    <div class="text-center">
+                        <img src="img/igni.png" alt="Logo" class="mx-auto h-48 w-48 rounded-full">
+                        <span class="mt-4 text-4xl font-bold text-white">Ignisense</span>
+                        <p class="mt-2 text-slate-300">Photonic-Based Early Fire Detection</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        lucide.createIcons();
+
+        const heroCanvas = document.getElementById('login-canvas');
+        let heroCtx;
+        let particles = [];
+        
+        const setCanvasSize = () => {
+            if (!heroCanvas) return;
+            heroCanvas.width = heroCanvas.offsetWidth;
+            heroCanvas.height = heroCanvas.offsetHeight;
+            heroCtx = heroCanvas.getContext('2d');
+        };
+
+        const createParticles = () => {
+            if (!heroCanvas) return;
+            particles = [];
+            const particleCount = Math.floor((heroCanvas.width * heroCanvas.height) / 10000); 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * heroCanvas.width,
+                    y: Math.random() * heroCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+        };
+
+        const animateParticles = () => {
+            if (!heroCtx) return;
+            heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > heroCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > heroCanvas.height) p.vy *= -1;
+
+                heroCtx.beginPath();
+                heroCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                heroCtx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`; // Orange particles
+                heroCtx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        };
+        
+        const initHeroCanvas = () => {
+            setCanvasSize();
+            createParticles();
+            animateParticles();
+            
+            window.addEventListener('resize', () => {
+                setCanvasSize();
+                createParticles();
+            });
+        };
+        
+        initHeroCanvas();
+
+        const signupForm = document.getElementById('signup-form');
+        const signupButton = document.getElementById('signup-button');
+        const signupErrorMessage = document.getElementById('signup-error-message');
+        const signupSuccessMessage = document.getElementById('signup-success-message');
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+            signupButton.disabled = true;
+            signupButton.textContent = "Creating Account...";
+            signupErrorMessage.classList.add('hidden');
+            signupSuccessMessage.classList.add('hidden');
+
+            // --- Validation ---
+            if (!username || !email || !password || !confirmPassword) {
+                showError("All fields are required.");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError("Passwords do not match.");
+                return;
+            }
+
+            if (password.length < 6) {
+                showError("Password must be at least 6 characters long.");
+                return;
+            }
+
+            // --- Check for existing user ---
+            const users = JSON.parse(localStorage.getItem('ignisense_users') || '[]');
+            const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (existingUser) {
+                showError("An account with this email already exists.");
+                return;
+            }
+
+            // --- Create and save new user ---
+            // NOTE: Storing passwords in plain text is insecure. This is for demo purposes only.
+            const newUser = {
+                id: `user-${Date.now()}`,
+                username: username,
+                email: email,
+                password: password 
+            };
+
+            users.push(newUser);
+            localStorage.setItem('ignisense_users', JSON.stringify(users));
+
+            console.log("New user registered:", newUser);
+
+            // --- Success ---
+            showSuccess("Account created! Redirecting to login...");
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        });
+
+        function showError(message) {
+            signupErrorMessage.textContent = message;
+            signupErrorMessage.classList.remove('hidden');
+            signupButton.disabled = false;
+            signupButton.textContent = "Create Account";
+        }
+
+        function showSuccess(message) {
+            signupSuccessMessage.textContent = message;
+            signupSuccessMessage.classList.remove('hidden');
+            // Keep button disabled on success
+        }
+
+    </script>
+</body>
+</html>

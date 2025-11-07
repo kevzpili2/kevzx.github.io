@@ -97,7 +97,7 @@
         <main class="container mx-auto px-6 py-12">
             <h1 class: "text-3xl md:text-4xl font-bold text-white mb-8">Admin Dashboard</h1>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg flex items-center gap-4">
                     <div class="bg-blue-500/10 p-3 rounded-full">
                         <i data-lucide="alert-circle" class="w-8 h-8 text-blue-400"></i>
@@ -123,6 +123,15 @@
                     <div>
                         <p class="text-sm text-slate-400">System Detections</p>
                         <p id="stat-system-reports" class="text-3xl font-bold text-white">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg flex items-center gap-4">
+                    <div class="bg-green-500/10 p-3 rounded-full">
+                        <i data-lucide="users" class="w-8 h-8 text-green-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400">Total Users</p>
+                        <p id="stat-total-users" class="text-3xl font-bold text-white">0</p>
                     </div>
                 </div>
             </div>
@@ -156,12 +165,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- User Management Section -->
+            <div class="mt-12">
+                <h2 class="text-2xl font-semibold text-white mb-4">User Management</h2>
+                <div class="bg-slate-900/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-700">
+                        <thead class="bg-slate-800/50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Username</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Email</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">User ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-body" class="divide-y divide-slate-700">
+                            <tr id="no-users-msg" class="hidden">
+                                <td colspan="3" class="px-6 py-4 text-center text-slate-400">No registered users found.</td>
+                            </tr>
+                            <!-- User rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 
     <script type="module">
         let adminUserId = null;
         let localReports = JSON.parse(localStorage.getItem('ignisense_reports') || '[]');
+        let registeredUsers = [];
         
         const fireMarkers = {};
         let adminMap;
@@ -178,6 +210,10 @@
         const statTotalReports = document.getElementById('stat-total-reports');
         const statUserReports = document.getElementById('stat-user-reports');
         const statSystemReports = document.getElementById('stat-system-reports');
+        const statTotalUsers = document.getElementById('stat-total-users');
+        
+        const userListBody = document.getElementById('user-list-body');
+        const noUsersMsg = document.getElementById('no-users-msg');
         
         const userFireIcon = L.divIcon({ html: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="user-fire-marker"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`, className: '', iconSize: [40, 40], iconAnchor: [20, 40] });
         const systemFireIcon = L.divIcon({ html: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="system-fire-marker"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`, className: '', iconSize: [40, 40], iconAnchor: [20, 40] });
@@ -273,6 +309,7 @@
             initAdminMap();
             setupListeners();
             updateDashboard();
+            updateUserList();
             
             initHeroCanvas();
             
@@ -296,7 +333,7 @@
         async function addMarkerToAdminMap(report, reportId) {
             const latlng = [report.lat, report.lng];
             const icon = report.type === 'user' ? userFireIcon : systemFireIcon;
-            const title = report.type === 'user' ? "User Report" : "System Detection";
+            const title = report.type ==='user' ? "User Report" : "System Detection";
             
             if(fireMarkers[reportId]) {
                adminMap.removeLayer(fireMarkers[reportId]);
@@ -317,11 +354,16 @@
 
         async function updateDashboard() {
             console.log("Updating dashboard...");
+            
+            // Update stats
             const userReports = localReports.filter(r => r.type === 'user').length;
             const systemReports = localReports.filter(r => r.type === 'system').length;
+            registeredUsers = JSON.parse(localStorage.getItem('ignisense_users') || '[]');
+            
             statTotalReports.textContent = localReports.length;
             statUserReports.textContent = userReports;
             statSystemReports.textContent = systemReports;
+            statTotalUsers.textContent = registeredUsers.length;
 
             if (localReports.length === 0) {
                 noReportsMsg.classList.remove('hidden');
@@ -350,7 +392,7 @@
                                 </h3>
                                 <p class="text-sm text-slate-300 mt-1">${locationName}</p>
                                 <p class="text-xs text-slate-500 mt-2">${timestamp}</p>
-                                <p class="text-xs text-slate-600 mt-1">ID: ${id}</p>
+<p class="text-xs text-slate-600 mt-1">ID: ${id}</p>
                             </div>
                             <button data-id="${id}" class="delete-report-btn flex-shrink-0 bg-red-600/20 text-red-400 hover:bg-red-600/40 hover:text-red-300 p-2 rounded-full transition-colors">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -377,6 +419,36 @@
             }
         }
         
+        function updateUserList() {
+            console.log("Updating user list...");
+            registeredUsers = JSON.parse(localStorage.getItem('ignisense_users') || '[]');
+            userListBody.innerHTML = ''; // Clear existing list
+
+            if (registeredUsers.length === 0) {
+                noUsersMsg.classList.remove('hidden');
+            } else {
+                noUsersMsg.classList.add('hidden');
+                registeredUsers.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-800/50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                            ${user.username}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                            ${user.email}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            ${user.id}
+                        </td>
+                    `;
+                    userListBody.appendChild(tr);
+                });
+            }
+            lucide.createIcons(); // Render any new icons
+        }
+        
         async function handleDeleteReport(e) {
             const id = e.currentTarget.dataset.id;
             
@@ -384,7 +456,7 @@
                 try {
                     localReports = localReports.filter(report => report.id !== id);
                     localStorage.setItem('ignisense_reports', JSON.stringify(localReports));
-                    updateDashboard();
+                    updateDashboard(); // Re-run to update reports and map
                     console.log("Report deleted:", id);
                 } catch (error) {
                     console.error("Error deleting report:", error);
@@ -411,7 +483,7 @@
                 localReports.push(newReport);
                 localStorage.setItem('ignisense_reports', JSON.stringify(localReports));
 
-                updateDashboard();
+                updateDashboard(); // Re-run to update reports and map
                 
                 console.log("Simulated fire report added:", id);
 
@@ -439,6 +511,13 @@
                     localReports = JSON.parse(event.newValue || '[]');
                     updateDashboard();
                 }
+                
+                if (event.key === 'ignisense_users') {
+                    console.log("User data updated from sign-up page. Reloading user list.");
+                    // Need to update both stats (in dashboard) and the user list
+                    updateDashboard(); 
+                    updateUserList();
+                }
             });
         }
 
@@ -451,11 +530,10 @@
                 console.log("No admin override flag found. Redirecting to login.");
                 loadingText.textContent = "Access Denied. Redirecting...";
                 setTimeout(() => {
-                    window.location.href = 'index.HhTmLl';
+                    window.location.href = 'index.html';
                 }, 1000);
             }
         });
     </script>
 </body>
 </html>
-

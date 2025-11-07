@@ -140,6 +140,10 @@
                         <a href="#features" class="nav-link text-slate-300 hover:text-orange-400 font-medium">Features</a>
                         <a href="#map-section" class="nav-link text-slate-300 hover:text-orange-400 font-medium">Live Map</a>
                         <a href="#emergency-contacts" class="nav-link text-slate-300 hover:text-orange-400 font-medium">Hotlines</a>
+                        <span id="welcome-user-desktop" class="text-slate-300 font-medium text-sm hidden md:flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-4 h-4 text-orange-400"></i>
+                            <span id="username-desktop">Guest</span>
+                        </span>
                         <button id="logout-button-desktop" class="bg-red-600/80 hover:bg-red-700 text-white font-medium py-2 px-5 rounded-full transition-all transform hover:scale-105 duration-300 inline-flex items-center gap-2 text-sm">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                             <span>Logout</span>
@@ -157,7 +161,11 @@
                 <a href="#features" class="mobile-nav-link block py-2 px-6 text-slate-300 hover:bg-orange-400/20">Features</a>
                 <a href="#map-section" class="mobile-nav-link block py-2 px-6 text-slate-300 hover:bg-orange-400/20">Live Map</a>
                 <a href="#emergency-contacts" class="mobile-nav-link block py-2 px-6 text-slate-300 hover:bg-orange-400/20">Hotlines</a>
-                <div class="p-4">
+                <div class="p-4 space-y-3">
+                    <div id="welcome-user-mobile" class="text-slate-300 font-medium text-sm flex items-center justify-center gap-1.5">
+                        <i data-lucide="user" class="w-4 h-4 text-orange-400"></i>
+                        <span id="username-mobile">Guest</span>
+                    </div>
                     <button id="logout-button-mobile" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-all transform hover:scale-105 duration-300 inline-flex items-center justify-center gap-2">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                         <span>Logout</span>
@@ -400,6 +408,8 @@
         const suggestionsBox = document.getElementById('suggestions-box');
         const logoutBtnDesktop = document.getElementById('logout-button-desktop');
         const logoutBtnMobile = document.getElementById('logout-button-mobile');
+        const usernameDesktop = document.getElementById('username-desktop');
+        const usernameMobile = document.getElementById('username-mobile');
 
         
         const fireMarkers = {};
@@ -414,7 +424,7 @@
             
             if (localStorage.getItem("ignisense_user_override") === "true") {
                 console.warn("INSECURE USER OVERRIDE ACTIVE.");
-                userId = "hardcoded_user";
+                userId = localStorage.getItem("ignisense_current_user") || "hardcoded_user";
                 
                 localStorage.removeItem("ignisense_admin_override");
                 initializeAppLogic();
@@ -436,11 +446,19 @@
         function initializeAppLogic() {
             lucide.createIcons();
             
+            // Set username
+            const username = localStorage.getItem("ignisense_current_user");
+            if (username && usernameDesktop && usernameMobile) {
+                usernameDesktop.textContent = username;
+                usernameMobile.textContent = username;
+            }
             
+            // Logout handler
             const handleLogout = async () => {
                 
                 localStorage.removeItem("ignisense_user_override");
                 localStorage.removeItem("ignisense_admin_override");
+                localStorage.removeItem("ignisense_current_user"); // Clear username on logout
                 
                 window.location.href = 'index.html'; 
             };
@@ -804,4 +822,3 @@
     </script>
 </body>
 </html>
-

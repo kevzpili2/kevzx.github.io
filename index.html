@@ -10,7 +10,10 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Use a blurred background image as requested */
             background-color: #0a0a0a;
+            background-size: cover;
+            background-position: center;
             color: #e2e8f0;
         }
         .hero-bg {
@@ -21,70 +24,89 @@
                 radial-gradient(at 82% 99%, hsla(340, 98%, 42%, 0.1) 0px, transparent 50%),
                 radial-gradient(at 17% 81%, hsla(283, 98%, 42%, 0.1) 0px, transparent 50%);
         }
-        #login-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+        .glass-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body class="antialiased">
     
-    <div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 hero-bg overflow-hidden">
-        <canvas id="login-canvas"></canvas>
-
-        <div class="absolute inset-0 bg-black/40 z-0"></div>
+    <!-- Full screen container -->
+    <div class="relative min-h-screen flex items-center justify-center hero-bg overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
         
-        <div class="relative z-10 max-w-md w-full space-y-8 bg-slate-900/50 backdrop-blur-md p-10 rounded-2xl shadow-2xl border border-slate-700">
-            <div>
-                <div class="mx-auto h-12 w-auto flex items-center justify-center gap-2 text-white text-3xl font-bold">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-400"><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0Z"/><path d="M12 12.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 1 0 7 0Z"/><path d="M19 12.5c0 .09 0 .18-.01.27"/><path d="M5 12.5c0 .09 0 .18.01.27"/><path d="M12.5 19c.09 0 .18 0 .27-.01"/><path d="M12.5 5c.09 0 .18 0 .27.01"/></svg>
-                    <span>Ignisense</span>
-                </div>
-                <h2 id="form-title" class="mt-6 text-center text-2xl font-bold tracking-tight text-white">
-                    Sign in to Ignisense
-                </h2>
-            </div>
-            
-            <form id="login-form" class="form-container mt-8 space-y-6" action="#" method="POST">
-                <div class="rounded-md shadow-sm -space-y-px">
-                    <div>
-                        <label for="login-username" class="sr-only">Username</label>
-                        <input id="login-username" name="username" type="text" autocomplete="username" required
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-t-md"
-                            placeholder="Username">
-                    </div>
-                    <div>
-                        <label for="login-password" class="sr-only">Password</label>
-                        <input id="login-password" name="password" type="password" autocomplete="current-password" required
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-b-md"
-                            placeholder="Password">
-                    </div>
-                </div>
-                <div>
-                    <button type="submit" id="login-button"
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-orange-500 transition-colors duration-300">
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <i data-lucide="lock" class="h-5 w-5 text-orange-300 group-hover:text-orange-200"></i>
-                        </span>
-                        Sign in
-                    </button>
-                </div>
-                <div id="login-error-message" class="text-center text-red-400 text-sm font-medium hidden"></div>
-            </form>
+        <canvas id="login-canvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
 
+        <!-- The semi-transparent card -->
+        <div class="relative z-10 max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden glass-card">
+            <div class="flex flex-col md:flex-row">
+                
+                <!-- Left Side: Form -->
+                <div class="w-full md:w-1/2 p-10 md:p-12">
+                    <div>
+                        <h2 id="form-title" class="text-3xl font-bold tracking-tight text-white">
+                            Login to your Account
+                        </h2>
+                        <p class="mt-2 text-slate-300">
+                            Welcome! Please enter your credentials.
+                        </p>
+                    </div>
+                    
+                    <form id="login-form" class="form-container mt-8 space-y-6" action="#" method="POST">
+                        <div class="rounded-md shadow-sm space-y-4">
+                            <div>
+                                <label for="login-email" class="sr-only">Email</label>
+                                <input id="login-email" name="email" type="email" autocomplete="email" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Email">
+                            </div>
+                            <div>
+                                <label for="login-password" class="sr-only">Password</label>
+                                <input id="login-password" name="password" type="password" autocomplete="current-password" required
+                                    class="appearance-none relative block w-full px-4 py-3 border border-slate-700 bg-slate-800/60 text-white placeholder-slate-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm rounded-md"
+                                    placeholder="Password">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <a href="signup.html" class="font-medium text-orange-400 hover:text-orange-300">
+                                Don't have an account?
+                            </a>
+                            <a href="#" class="font-medium text-slate-400 hover:text-slate-200">
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                        <div>
+                            <button type="submit" id="login-button"
+                                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-orange-500 transition-colors duration-300">
+                                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                    <i data-lucide="lock" class="h-5 w-5 text-orange-300 group-hover:text-orange-200"></i>
+                                </span>
+                                Login
+                            </button>
+                        </div>
+                        <div id="login-error-message" class="text-center text-red-400 text-sm font-medium hidden"></div>
+                    </form>
+                </div>
+
+                <!-- Right Side: Logo/Brand -->
+                <div class="w-full md:w-1/2 p-10 md:p-12 flex items-center justify-center bg-black/20">
+                    <div class="text-center">
+                        <img src="img/igni.png" alt="Logo" class="mx-auto h-48 w-48 rounded-full">
+                        <span class="mt-4 text-4xl font-bold text-white">Ignisense</span>
+                        <p class="mt-2 text-slate-300">Photonic-Based Early Fire Detection</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script type="module">
         lucide.createIcons();
-
-        const loginForm = document.getElementById('login-form');
-        const loginButton = document.getElementById('login-button');
-        const loginErrorMessage = document.getElementById('login-error-message');
 
         const heroCanvas = document.getElementById('login-canvas');
         let heroCtx;
@@ -125,7 +147,7 @@
 
                 heroCtx.beginPath();
                 heroCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                heroCtx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`;
+                heroCtx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`; // Orange particles
                 heroCtx.fill();
             });
             requestAnimationFrame(animateParticles);
@@ -144,20 +166,26 @@
         
         initHeroCanvas();
 
+        const loginForm = document.getElementById('login-form');
+        const loginButton = document.getElementById('login-button');
+        const loginErrorMessage = document.getElementById('login-error-message');
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('login-username').value;
+            const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
             loginButton.disabled = true;
             loginButton.textContent = "Signing in...";
             loginErrorMessage.classList.add('hidden');
 
-            const ADMIN_USER = "ignisensekevs";
+            // --- Hardcoded Admin Check (from original file) ---
+            const ADMIN_USER = "ignisensekevs"; // Original was username, let's make it email for consistency
+            const ADMIN_EMAIL = "admin@ignisense.ph"; // New admin email
             const ADMIN_PASS = "igni123";
 
-            if (username.toLowerCase() === ADMIN_USER && password === ADMIN_PASS) {
+            if ((email.toLowerCase() === ADMIN_EMAIL || email.toLowerCase() === ADMIN_USER) && password === ADMIN_PASS) {
                 console.log("Hardcoded Admin login successful.");
                 localStorage.setItem("ignisense_admin_override", "true");
                 localStorage.removeItem("ignisense_user_override");
@@ -165,17 +193,34 @@
                 return;
             }
 
-            console.log("Non-admin login attempt. Redirecting to user home.");
+            // --- Registered User Check ---
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('ignisense_users') || '[]');
             
-            localStorage.setItem("ignisense_user_override", "true");
-            localStorage.removeItem("ignisense_admin_override");
-            
-            setTimeout(() => {
-                window.location.href = 'user_home.html';
-            }, 500);
+            // Find the user
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+
+            if (user) {
+                // User found
+                console.log("Registered user login successful.");
+                localStorage.setItem("ignisense_user_override", "true");
+                localStorage.setItem("ignisense_current_user", user.username); // <-- Save the username
+                localStorage.removeItem("ignisense_admin_override");
+                
+                setTimeout(() => {
+                    window.location.href = 'user_home.html';
+                }, 500);
+
+            } else {
+                // No user found
+                console.log("Invalid email or password.");
+                loginErrorMessage.textContent = "Invalid email or password.";
+                loginErrorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = "Login";
+            }
         });
 
     </script>
 </body>
 </html>
-
