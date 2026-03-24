@@ -5,15 +5,35 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// GET: Fetch all reports
 if ($method === 'GET') {
-    // Select all columns, including the new 'intensity' column
-    $stmt = $pdo->query("SELECT * FROM reports ORDER BY created_at DESC");
-    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+        $stmt = $pdo->query("
+            SELECT r.*, u.name AS reporter_name 
+            FROM reports r 
+            LEFT JOIN users u ON r.reporter_id = u.id 
+            ORDER BY r.created_at DESC
+        ");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    } else {
+        $userId = $_SESSION['user_id'];
+        $stmt = $pdo->prepare("
+            SELECT r.*, u.name AS reporter_name 
+            FROM reports r 
+            LEFT JOIN users u ON r.reporter_id = u.id 
+            WHERE r.reporter_id = ? 
+            ORDER BY r.created_at DESC
+        ");
+        $stmt->execute([$userId]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
     exit;
 }
 
-// POST: Create a new report
 if ($method === 'POST') {
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
@@ -26,18 +46,15 @@ if ($method === 'POST') {
     $lat = $input['lat'];
     $lng = $input['lng'];
     $locName = $input['location_name'] ?? 'Unknown';
-    // Capture intensity, default to 'low' if missing
     $intensity = $input['intensity'] ?? 'low'; 
     $reporterId = $_SESSION['user_id'];
 
-    // Only admins can create 'system' type reports
     if ($type === 'system' && $_SESSION['role'] !== 'admin') {
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
 
     try {
-        // Updated INSERT statement to include 'intensity'
         $stmt = $pdo->prepare("INSERT INTO reports (type, lat, lng, location_name, intensity, reporter_id) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$type, $lat, $lng, $locName, $intensity, $reporterId]);
 
@@ -48,7 +65,6 @@ if ($method === 'POST') {
     exit;
 }
 
-// DELETE: Delete a report (Admin only)
 if ($method === 'DELETE') {
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);

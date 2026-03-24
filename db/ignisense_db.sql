@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 08, 2026 at 05:49 PM
+-- Generation Time: Mar 24, 2026 at 04:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `ignisense_db`
 --
+CREATE DATABASE IF NOT EXISTS `ignisense_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `ignisense_db`;
 
 -- --------------------------------------------------------
 
@@ -70,7 +72,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`) VALUES
 (1, 'System Admin', 'admin@ignisense.ph', '$2y$10$nyckXMkcHeJ6ry/F.TUZyOjia.zotNf7/CxjCj3wdSIq89vhw0TRO', 'admin', '2026-01-06 13:04:09'),
-(2, 'Jp', 'jp@gmail.com', '$2y$10$IsSNCG0Yv2wOMLjq1eEfg.OHtNULI.yHoEiDWzZJ05ZjjNt4DfsgO', 'user', '2026-01-06 13:34:15');
+(2, 'Jp', 'jp@gmail.com', '$2y$10$IsSNCG0Yv2wOMLjq1eEfg.OHtNULI.yHoEiDWzZJ05ZjjNt4DfsgO', 'user', '2026-01-06 13:34:15'),
+(4, 'godoyjp', 'jp123@gmail.com', '$2y$10$tW30PdGHgOywEclCwYY09OUluSm1jIRVv0NFlUObeCBs6Zl.2uvQa', 'user', '2026-03-24 15:01:11');
 
 --
 -- Indexes for dumped tables
@@ -104,7 +107,7 @@ ALTER TABLE `reports`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

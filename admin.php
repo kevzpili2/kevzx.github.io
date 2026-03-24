@@ -139,7 +139,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
     <div class="scanlines"></div>
 
-    <!-- Loading Screen -->
     <div id="loading-overlay" class="fixed inset-0 bg-[#050202] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative">
             <div class="spinner"></div>
@@ -151,10 +150,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     </div>
 
     <div class="flex h-screen">
-        <!-- Sidebar -->
         <aside class="w-72 glass-panel border-r border-red-900/20 hidden md:flex flex-col z-50">
             <div class="p-8 border-b border-white/5 relative overflow-hidden page-transition" style="animation-delay: 0.1s;">
-                <!-- Decorative glow -->
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-50"></div>
                 
                 <h1 class="text-2xl font-display font-bold text-white flex items-center gap-3">
@@ -184,9 +181,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             </div>
         </aside>
 
-        <!-- Main Content Wrapper -->
         <main class="flex-1 overflow-y-auto relative flex flex-col">
-            <!-- Top Bar -->
             <header class="sticky top-0 z-40 glass-panel border-b border-red-900/20 px-8 py-4 flex justify-between items-center page-transition" style="animation-delay: 0.1s;">
                 <div>
                     <h2 class="text-2xl font-display font-bold text-white tracking-wide" id="page-title">Command Center</h2>
@@ -203,12 +198,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 </div>
             </header>
 
-            <!-- Content Area -->
             <div class="p-6 md:p-8 flex-1 page-transition" style="animation-delay: 0.2s;">
 
-                <!-- VIEW: DASHBOARD -->
                 <div id="view-dashboard" class="view-section active">
-                    <!-- Stats Row -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="bg-gradient-to-br from-neutral-900 to-black p-6 rounded-xl border border-white/5 relative group overflow-hidden">
                             <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i data-lucide="flame" class="w-16 h-16 text-white"></i></div>
@@ -232,7 +224,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Map Column -->
                         <div class="lg:col-span-2 space-y-4">
                             <div class="flex justify-between items-center px-1">
                                 <h3 class="text-lg font-display font-bold text-white flex items-center gap-2">
@@ -243,34 +234,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                 </button>
                             </div>
                             
-                            <!-- Map Frame -->
                             <div class="relative p-1 rounded-xl bg-gradient-to-b from-gray-800 to-black border border-gray-700/50">
                                 <div id="admin-map" class="map-container bg-neutral-900"></div>
-                                <!-- Map Overlay Info -->
                                 <div class="absolute top-4 right-4 z-[400] bg-black/80 backdrop-blur border border-red-900/50 px-3 py-1 text-[10px] font-mono text-red-400">
                                     <span class="animate-pulse">●</span> LIVE FEED
                                 </div>
                             </div>
                         </div>
 
-                        <!-- List Column -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-display font-bold text-white flex items-center gap-2 px-1">
                                 <i data-lucide="radio" class="w-4 h-4 text-red-500"></i> Incoming Feed
                             </h3>
                             <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-2 h-[500px] flex flex-col relative">
-                                <!-- Scan line for list -->
                                 <div class="absolute top-0 left-0 w-full h-1 bg-red-500/20 z-10 animate-scan"></div>
                                 
                                 <div id="report-list" class="space-y-2 overflow-y-auto custom-scrollbar p-2 flex-1">
-                                    <!-- Dynamic Items -->
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- VIEW: USER MANAGEMENT -->
                 <div id="view-users" class="view-section">
                     <div class="bg-neutral-900/80 rounded-xl border border-white/10 overflow-hidden shadow-2xl">
                         <div class="p-6 border-b border-white/5 flex justify-between items-center bg-black/40">
@@ -294,15 +279,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                     </tr>
                                 </thead>
                                 <tbody id="users-table-body" class="divide-y divide-white/5">
-                                    <!-- Users injected via JS -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- FOOTER -->
             <footer class="mt-auto border-t border-red-900/20 bg-[#020101] py-8 px-10">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div class="text-xs text-gray-600 font-mono">
@@ -318,10 +301,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
         </main>
     </div>
 
-    <!-- CUSTOM MODAL -->
     <div id="custom-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[10000] flex items-center justify-center">
         <div class="bg-[#0f0505] p-1 rounded-2xl border border-red-900/50 max-w-sm w-full shadow-[0_0_50px_rgba(220,38,38,0.2)] modal-enter relative overflow-hidden">
-            <!-- Alert Stripe -->
             <div class="h-1 w-full bg-gradient-to-r from-red-600 via-orange-500 to-red-600"></div>
             
             <div class="p-8">
@@ -468,23 +449,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 const lat = parseFloat(r.lat);
                 const lng = parseFloat(r.lng);
                 const intensity = r.intensity ? r.intensity.toLowerCase() : 'unknown';
+                
+                // Grab the reporter's name or default to UNKNOWN
+                const reporterName = r.reporter_name ? r.reporter_name.toUpperCase() : 'UNKNOWN CIVILIAN';
+                const displayTitle = r.type === 'system' ? 'AUTO-SENSOR ALERT' : `REPORT BY: ${reporterName}`;
 
                 if (!isNaN(lat) && !isNaN(lng)) {
-                    // Use dynamic icon based on intensity
+                    // Update the Map Popup to show the name
                     L.marker([lat, lng], {icon: getIcon(r.type, intensity)})
-                    .addTo(map).bindPopup(`<div class="text-black font-bold">${r.location_name}<br><span class="text-xs font-normal">Intensity: ${intensity.toUpperCase()}</span></div>`);
+                    .addTo(map).bindPopup(`
+                        <div class="text-black font-bold border-b border-gray-300 pb-1 mb-1">${displayTitle}</div>
+                        <div class="text-black text-xs font-normal">${r.location_name}<br><b>Intensity:</b> ${intensity.toUpperCase()}</div>
+                    `);
                 }
 
                 const el = document.createElement('div');
-                // Updated list item style
                 el.className = 'group bg-black/40 p-3 rounded border border-white/5 flex justify-between items-center hover:bg-white/5 hover:border-red-500/30 transition-all cursor-pointer';
                 
-                // Add click to pan map
                 el.onclick = (e) => {
                     if(!e.target.closest('button')) map.flyTo([lat, lng], 16);
                 };
 
-                // Display Intensity Badge with dynamic colors
                 let badgeClass = 'bg-gray-800 text-gray-400 border-gray-700';
                 if (intensity === 'high') badgeClass = 'bg-red-900/50 text-red-400 border-red-800';
                 else if (intensity === 'medium') badgeClass = 'bg-amber-900/50 text-amber-400 border-amber-800';
@@ -494,9 +479,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                     ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${badgeClass}">${r.intensity}</span>`
                     : '';
 
-                // Dynamic icon color for list
                 const listIconClass = intensity === 'low' ? 'text-green-500' : (intensity === 'medium' ? 'text-amber-500' : 'text-red-500');
 
+                // Update the Sidebar List to show the name
                 el.innerHTML = `
                     <div class="flex items-start gap-3">
                         <div class="mt-1 ${listIconClass}">
@@ -504,7 +489,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-200 group-hover:text-white flex items-center gap-2">
-                                ${r.type === 'system' ? 'AUTO-SENSOR ALERT' : 'CIVILIAN REPORT'}
+                                ${displayTitle}
                                 ${intensityBadge}
                             </div>
                             <div class="text-xs text-gray-500 font-mono mt-0.5">${r.location_name}</div>
