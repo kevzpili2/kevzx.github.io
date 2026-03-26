@@ -132,7 +132,7 @@ if (isset($_SESSION['user_id'])) {
                 <div class="relative w-24 h-24 group">
                     <div class="absolute inset-0 bg-red-600/20 blur-xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity"></div>
                     <!-- Image Tag Placeholder -->
-                    <img src="img/tccc.png" 
+                    <img src="img/tcc.png" 
                          alt="Company Logo" 
                          class="relative w-full h-full object-contain rounded-xl border border-red-500/30 bg-black/50 p-1 hover:border-red-500/60 transition-all shadow-lg shadow-red-900/10">
                 </div>
